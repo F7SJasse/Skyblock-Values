@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGSkyblock — Value List</title>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e2a;
+    --bg4: #21273a;
+    --border: #2a3050;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --gold: #f5c842;
+    --gold2: #e8a820;
+    --green: #3ecf78;
+    --red: #f04f5f;
+    --purple: #b06af0;
+    --text: #e8ecf5;
+    --text2: #8b95b0;
+    --text3: #5a6380;
+    --rare: #f5842c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; gap: 0; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .topbar .logo { font-weight: 800; font-size: 1.15rem; color: var(--gold); letter-spacing: 0.5px; margin-right: 28px; white-space: nowrap; }
+  .topbar .logo span { color: var(--accent); }
+  .nav-tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+  .nav-tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 500; color: var(--text2); transition: all .15s; border: none; background: none; }
+  .nav-tab:hover { background: var(--bg3); color: var(--text); }
+  .nav-tab.active { background: var(--accent); color: #fff; }
+  .search-wrap { margin-left: auto; position: relative; }
+  .search-wrap input { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px 7px 36px; font-size: 0.85rem; color: var(--text); width: 200px; outline: none; }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap .sicon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 0.9rem; }
+
+  /* LAYOUT */
+  .main { max-width: 1300px; margin: 0 auto; padding: 24px 16px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-title { font-size: 1.4rem; font-weight: 700; color: var(--gold); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+  .page-title .badge { font-size: 0.72rem; background: var(--accent2); color: #fff; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+
+  /* CARDS GRID */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .set-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color .15s, transform .15s; cursor: pointer; }
+  .set-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .set-card.expanded { border-color: var(--accent); }
+  .set-card .card-header { padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+  .set-card .card-icon { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--accent2), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .set-card .card-name { font-weight: 600; font-size: 0.95rem; }
+  .set-card .card-sub { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+  .set-card .card-arrow { margin-left: auto; color: var(--text3); transition: transform .2s; }
+  .set-card.expanded .card-arrow { transform: rotate(180deg); }
+  .set-card .card-body { display: none; border-top: 1px solid var(--border); }
+  .set-card.expanded .card-body { display: block; }
+
+  /* TABS inside card */
+  .card-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .card-tab { flex: 1; padding: 8px; text-align: center; font-size: 0.78rem; font-weight: 600; cursor: pointer; color: var(--text2); transition: all .15s; }
+  .card-tab:hover { color: var(--text); background: var(--bg3); }
+  .card-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .card-pane { display: none; padding: 14px 16px; }
+  .card-pane.active { display: block; }
+
+  /* VALUE ROW */
+  .val-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .val-row:last-child { border-bottom: none; }
+  .val-label { font-size: 0.8rem; color: var(--text2); font-weight: 500; }
+  .val-badge { font-size: 0.8rem; font-weight: 700; color: var(--gold); background: rgba(245,200,66,.1); border-radius: 4px; padding: 2px 8px; }
+  .val-badge.v55 { color: var(--green); background: rgba(62,207,120,.1); }
+  .val-badge.rare { color: var(--rare); background: rgba(245,132,44,.1); }
+  .val-badge.title { color: var(--purple); background: rgba(176,106,240,.1); }
+
+  /* INFO PANE */
+  .info-section { margin-bottom: 12px; }
+  .info-section h4 { font-size: 0.78rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .stat-chip { background: var(--bg3); border-radius: 5px; padding: 4px 6px; font-size: 0.72rem; text-align: center; }
+  .stat-chip .sk { color: var(--text3); display: block; font-size: 0.68rem; }
+  .stat-chip .sv { color: var(--text); font-weight: 600; }
+  .ability-box { background: var(--bg3); border-left: 3px solid var(--accent2); border-radius: 0 6px 6px 0; padding: 8px 10px; font-size: 0.78rem; color: var(--text2); line-height: 1.5; margin-bottom: 6px; }
+  .ability-box strong { color: var(--text); }
+  .total-stats { display: flex; gap: 8px; margin-bottom: 10px; }
+  .total-chip { background: linear-gradient(135deg, var(--accent2)22, var(--accent)22); border: 1px solid var(--accent)44; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; text-align: center; }
+  .total-chip .tk { color: var(--text3); font-size: 0.68rem; display: block; }
+  .total-chip .tv { font-weight: 700; color: var(--accent); }
+
+  /* ENCHANTS PAGE */
+  .enchant-toggle { display: flex; background: var(--bg3); border-radius: 8px; padding: 3px; width: fit-content; margin-bottom: 20px; }
+  .enchant-toggle button { padding: 7px 18px; border: none; background: none; border-radius: 6px; font-size: 0.83rem; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; }
+  .enchant-toggle button.active { background: var(--accent); color: #fff; }
+  .enchant-view { display: none; }
+  .enchant-view.active { display: block; }
+  .enchant-tabs-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .enchant-tab-btn { padding: 6px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; }
+  .enchant-tab-btn:hover, .enchant-tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .enchant-table { width: 100%; border-collapse: collapse; background: var(--bg2); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .enchant-table th { background: var(--bg3); padding: 10px 14px; text-align: left; font-size: 0.78rem; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+  .enchant-table td { padding: 10px 14px; font-size: 0.83rem; border-top: 1px solid var(--border); }
+  .enchant-table tr:hover td { background: var(--bg3); }
+  .enchant-table .set-name { font-weight: 600; color: var(--text); }
+
+  /* SET SELECT */
+  .set-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .set-sel-btn { padding: 5px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; font-size: 0.78rem; font-weight: 500; color: var(--text2); cursor: pointer; transition: all .15s; }
+  .set-sel-btn:hover, .set-sel-btn.active { border-color: var(--accent2); color: var(--accent2); background: rgba(124,92,252,.1); }
+  .set-detail-grid { display: grid; gap: 8px; }
+  .enchant-row-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .enchant-row-card .enc-name { font-weight: 700; color: var(--accent); font-size: 0.88rem; margin-bottom: 8px; }
+  .enc-val-row { display: flex; gap: 10px; }
+
+  /* PETS PAGE */
+  .pet-toggle { display: flex; background: var(--bg3); border-radius: 8px; padding: 3px; width: fit-content; margin-bottom: 20px; gap: 3px; }
+  .pet-toggle button { padding: 7px 18px; border: none; background: none; border-radius: 6px; font-size: 0.83rem; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; }
+  .pet-toggle button.active { background: var(--purple); color: #fff; }
+  .pet-table { width: 100%; border-collapse: collapse; background: var(--bg2); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .pet-table th { background: var(--bg3); padding: 10px 14px; text-align: left; font-size: 0.78rem; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+  .pet-table td { padding: 10px 14px; font-size: 0.82rem; border-top: 1px solid var(--border); }
+  .pet-table tr:hover td { background: var(--bg3); }
+  .pet-table .pet-name { font-weight: 600; color: var(--text); }
+  .tier-val { color: var(--gold); font-weight: 600; }
+  .tier-val.rare { color: var(--rare); }
+
+  /* WFL CALCULATOR */
+  .wfl-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .wfl-wrap { grid-template-columns: 1fr; } }
+  .wfl-side { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .wfl-side h3 { font-size: 1rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .wfl-side h3 span { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+  .wfl-side h3 .offer-lbl { background: rgba(79,142,247,.2); color: var(--accent); }
+  .wfl-side h3 .recv-lbl { background: rgba(62,207,120,.2); color: var(--green); }
+  .wfl-add { display: flex; gap: 8px; margin-bottom: 12px; }
+  .wfl-add select { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; color: var(--text); font-size: 0.83rem; outline: none; }
+  .wfl-add select:focus { border-color: var(--accent); }
+  .wfl-add button { background: var(--accent); border: none; border-radius: 7px; color: #fff; font-weight: 700; font-size: 0.85rem; padding: 0 16px; cursor: pointer; }
+  .wfl-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg3); border-radius: 7px; padding: 8px 12px; margin-bottom: 6px; font-size: 0.83rem; }
+  .wfl-item .wi-name { font-weight: 500; }
+  .wfl-item .wi-val { color: var(--gold); font-weight: 700; font-size: 0.8rem; }
+  .wfl-item .wi-del { color: var(--red); cursor: pointer; background: none; border: none; font-size: 1rem; padding: 0 4px; }
+  .wfl-total { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; display: flex; justify-content: space-between; font-weight: 700; }
+  .wfl-total .wt-val { font-size: 1.1rem; color: var(--gold); }
+  .wfl-result { margin-top: 20px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+  .wfl-verdict { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+  .verdict-W { color: var(--green); }
+  .verdict-F { color: var(--red); }
+  .verdict-L { color: var(--red); }
+  .verdict-Fair { color: var(--gold); }
+  .wfl-diff { font-size: 0.88rem; color: var(--text2); }
+  .wfl-clear { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; color: var(--text2); font-size: 0.82rem; cursor: pointer; margin-top: 10px; }
+  .wfl-clear:hover { border-color: var(--red); color: var(--red); }
+
+  /* PET BOOKS */
+  .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .book-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .book-card .bn { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
+  .book-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 3px; }
+  .book-row .br-lbl { color: var(--text2); }
+  .book-row .purple-val { color: var(--purple); font-weight: 600; }
+  .book-row .yellow-val { color: var(--gold); font-weight: 600; }
+
+  /* MISC */
+  .misc-section { margin-bottom: 24px; }
+  .misc-section h3 { font-size: 0.9rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+
+  /* SEARCH RESULTS */
+  .search-results { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .sr-item { padding: 10px 12px; border-radius: 7px; margin-bottom: 6px; background: var(--bg3); }
+  .sr-item .sr-name { font-weight: 600; font-size: 0.9rem; }
+  .sr-item .sr-cat { font-size: 0.72rem; color: var(--text3); margin-bottom: 4px; }
+  .sr-item .sr-vals { font-size: 0.82rem; color: var(--text2); }
+  .sr-item .sr-vals span { color: var(--gold); font-weight: 600; }
+
+  /* UTILS */
+  .tag { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .tag.rare { background: rgba(245,132,44,.15); color: var(--rare); }
+  .tag.mvp { background: rgba(79,142,247,.15); color: var(--accent); }
+  .tag.special { background: rgba(245,200,66,.15); color: var(--gold); }
+  .empty { color: var(--text3); font-size: 0.85rem; text-align: center; padding: 30px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .topbar { flex-wrap: wrap; height: auto; padding: 10px; gap: 8px; }
+    .search-wrap { width: 100%; }
+    .search-wrap input { width: 100%; }
+    .wfl-wrap { grid-template-columns: 1fr; }
+  }
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-btn { padding: 5px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; font-size: 0.78rem; font-weight: 500; color: var(--text2); cursor: pointer; transition: all .15s; }
+  .filter-btn:hover, .filter-btn.active { background: var(--gold2); border-color: var(--gold2); color: #000; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">BG<span>Skyblock</span> Values</div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" onclick="showPage('sets')">MVP Sets</button>
+    <button class="nav-tab" onclick="showPage('weapons')">Weapons</button>
+    <button class="nav-tab" onclick="showPage('titles')">Titles</button>
+    <button class="nav-tab" onclick="showPage('enchants')">Enchants</button>
+    <button class="nav-tab" onclick="showPage('pets')">Pets</button>
+    <button class="nav-tab" onclick="showPage('petbooks')">Pet Books</button>
+    <button class="nav-tab" onclick="showPage('misc')">Misc</button>
+    <button class="nav-tab" onclick="showPage('wfl')">⚖️ WFL Calc</button>
+    <button class="nav-tab" onclick="showPage('search')">🔍 Search</button>
+  </div>
+  <div class="search-wrap">
+    <span class="sicon">🔍</span>
+    <input type="text" placeholder="Quick search…" id="quickSearch" oninput="quickSearchFn(this.value)">
+  </div>
+</div>
+
+<div class="main">
+
+<!-- SETS PAGE -->
+<div class="page active" id="page-sets">
+  <div class="page-title">MVP Sets <span class="badge">29 Sets</span></div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterSets('all',this)">All</button>
+    <button class="filter-btn" onclick="filterSets('greek',this)">Greek Gods</button>
+    <button class="filter-btn" onclick="filterSets('norse',this)">Norse</button>
+    <button class="filter-btn" onclick="filterSets('sins',this)">Seven Sins</button>
+    <button class="filter-btn" onclick="filterSets('roman',this)">Roman</button>
+    <button class="filter-btn" onclick="filterSets('other',this)">Other</button>
+  </div>
+  <div class="cards-grid" id="setsGrid"></div>
+</div>
+
+<!-- WEAPONS PAGE -->
+<div class="page" id="page-weapons">
+  <div class="page-title">Weapons <span class="badge">29 Weapons</span></div>
+  <div class="cards-grid" id="weaponsGrid"></div>
+</div>
+
+<!-- TITLES PAGE -->
+<div class="page" id="page-titles">
+  <div class="page-title">Titles <span class="badge">27 Titles</span></div>
+  <div class="cards-grid" id="titlesGrid"></div>
+</div>
+
+<!-- ENCHANTS PAGE -->
+<div class="page" id="page-enchants">
+  <div class="page-title">Enchants</div>
+  <div class="enchant-toggle">
+    <button class="active" onclick="switchEnchantView('byEnchant',this)">View by Enchant</button>
+    <button onclick="switchEnchantView('bySet',this)">View by Set</button>
+  </div>
+
+  <!-- BY ENCHANT -->
+  <div class="enchant-view active" id="ev-byEnchant">
+    <div class="enchant-tabs-nav" id="enchantTabNav"></div>
+    <div id="enchantTableWrap"></div>
+    <div style="margin-top:20px">
+      <div class="page-title" style="font-size:1rem;">Accessory DEF1 Enchants</div>
+      <table class="enchant-table" style="margin-top:8px">
+        <thead><tr><th>Item</th><th>Value</th></tr></thead>
+        <tbody id="accEnchBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BY SET -->
+  <div class="enchant-view" id="ev-bySet">
+    <div class="set-selector" id="enchantSetSelector"></div>
+    <div id="setEnchantDetail"></div>
+  </div>
+</div>
+
+<!-- PETS PAGE -->
+<div class="page" id="page-pets">
+  <div class="page-title">Pets</div>
+  <div class="pet-toggle">
+    <button class="active" onclick="switchPetView('normal',this)">Normal Pets</button>
+    <button onclick="switchPetView('rare',this)">Rare Pets ✨</button>
+  </div>
+  <div id="petsTableWrap"></div>
+</div>
+
+<!-- PET BOOKS PAGE -->
+<div class="page" id="page-petbooks">
+  <div class="page-title">Pet Books</div>
+  <div class="books-grid" id="petBooksGrid"></div>
+</div>
+
+<!-- MISC PAGE -->
+<div class="page" id="page-misc">
+  <div class="page-title">Miscellaneous Items</div>
+  <div id="miscContent"></div>
+</div>
+
+<!-- WFL CALCULATOR -->
+<div class="page" id="page-wfl">
+  <div class="page-title">⚖️ Win / Fair / Loss Calculator</div>
+  <p style="color:var(--text2);font-size:0.85rem;margin-bottom:20px;">Add items to both sides to calculate if a trade is a Win, Fair, or Loss.</p>
+  <div class="wfl-wrap">
+    <div class="wfl-side" id="wflLeft">
+      <h3>Your Offer <span class="offer-lbl">Offering</span></h3>
+      <div class="wfl-add">
+        <select id="wflSelectLeft"><option value="">— Select item —</option></select>
+        <button onclick="addWflItem('left')">Add</button>
+      </div>
+      <div id="wflItemsLeft"></div>
+      <div class="wfl-total"><span>Total</span><span class="wt-val" id="wflTotalLeft">0</span></div>
+    </div>
+    <div class="wfl-side" id="wflRight">
+      <h3>You Receive <span class="recv-lbl">Receiving</span></h3>
+      <div class="wfl-add">
+        <select id="wflSelectRight"><option value="">— Select item —</option></select>
+        <button onclick="addWflItem('right')">Add</button>
+      </div>
+      <div id="wflItemsRight"></div>
+      <div class="wfl-total"><span>Total</span><span class="wt-val" id="wflTotalRight">0</span></div>
+    </div>
+  </div>
+  <div class="wfl-result" id="wflResult" style="display:none">
+    <div class="wfl-verdict" id="wflVerdict"></div>
+    <div class="wfl-diff" id="wflDiff"></div>
+  </div>
+  <div style="text-align:center;margin-top:12px">
+    <button class="wfl-clear" onclick="clearWfl()">Clear All</button>
+  </div>
+</div>
+
+<!-- SEARCH PAGE -->
+<div class="page" id="page-search">
+  <div class="page-title">🔍 Search All Items</div>
+  <input type="text" id="searchInput" placeholder="Type item name…" oninput="doSearch(this.value)" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:1rem;outline:none;margin-bottom:16px;">
+  <div id="searchResults" class="search-results"><div class="empty">Start typing to search all items…</div></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ===================== DATA =====================
+const SETS = [
+  { name:"Poseidon", v44:[400,450], v55:[550,600], group:"greek" },
+  { name:"Zeus", v44:[160,180], v55:[220,240], group:"greek" },
+  { name:"Hades", v44:[320,350], v55:[420,450], group:"greek" },
+  { name:"Ares", v44:[750,800], v55:[950,1000], group:"greek" },
+  { name:"Apollo", v44:[150,160], v55:[200,210], group:"greek" },
+  { name:"Hermes", v44:[650,700], v55:[850,900], group:"greek" },
+  { name:"Hephaestus", v44:[200,250], v55:[300,350], group:"greek" },
+  { name:"Medusa", v44:[400,450], v55:[600,650], group:"greek" },
+  { name:"Fenrir", v44:[400,450], v55:[500,550], group:"norse" },
+  { name:"Valkyrie", v44:[160,160], v55:[220,220], group:"norse" },
+  { name:"Jormungandr", v44:[350,350], v55:[450,450], group:"norse" },
+  { name:"Thor", v44:[180,180], v55:[245,245], group:"norse" },
+  { name:"Helheim", v44:[200,200], v55:[300,300], group:"norse" },
+  { name:"Winter", v44:[550,600], v55:[700,750], group:"other" },
+  { name:"Pride", v44:[180,200], v55:[250,260], group:"sins" },
+  { name:"Envy", v44:[200,220], v55:[250,270], group:"sins" },
+  { name:"Gluttony", v44:[1400,1400], v55:[1800,1800], group:"sins" },
+  { name:"Wrath Demon", v44:[400,450], v55:[500,550], group:"sins" },
+  { name:"Greed", v44:[250,250], v55:[350,350], group:"sins" },
+  { name:"Sloth", v44:[250,250], v55:[320,350], group:"sins" },
+  { name:"Lust", v44:[900,1000], v55:[1200,1300], group:"sins" },
+  { name:"Wraith Knight", v44:[250,300], v55:[400,450], group:"other" },
+  { name:"Judgment", v44:[200,200], v55:[300,300], group:"other" },
+  { name:"Phoenix", v44:[350,400], v55:[420,450], group:"other" },
+  { name:"Mercurius", v44:[200,250], v55:[300,350], group:"roman" },
+  { name:"Mars", v44:[300,350], v55:[400,450], group:"roman" },
+  { name:"Venus", v44:[370,400], v55:[480,500], group:"roman" },
+  { name:"Terra", v44:[750,800], v55:[900,1000], group:"roman" },
+  { name:"Uranus", v44:[450,450], v55:[550,600], group:"roman" },
+];
+
+const WEAPONS = [
+  { name:"Poseidon Trident", normal:[110,120], rare:[150,180], rareLabel:"Unsealed" },
+  { name:"Zeus Lightning", normal:[200,200], rare:[2500,2800] },
+  { name:"Hades Sword", normal:[200,250], rare:[2200,2400] },
+  { name:"Ares Spear", normal:[450,500], rare:[3000,3500] },
+  { name:"Apollo Sword", normal:[350,350], rare:[3300,3500] },
+  { name:"Fenrir Sword", normal:[150,180], rare:[1200,1300] },
+  { name:"Valkyrie Sword", normal:[500,550], rare:[6000,6500] },
+  { name:"Jormungandr Sword", normal:[180,200], rare:[1600,1800] },
+  { name:"Mjollnir", normal:[450,450], rare:[3500,3800] },
+  { name:"Helheim Sword", normal:[180,200], rare:[1400,1500] },
+  { name:"Hermes Sword", normal:[200,250], rare:[1800,2000] },
+  { name:"Flame Excalibur", normal:[180,200], rare:[1500,1600] },
+  { name:"Permafrost Sword", normal:[550,600], rare:[4000,4500] },
+  { name:"Medusa Spear", normal:[550,600], rare:[6000,6500] },
+  { name:"Pride Sword", normal:[250,280], rare:[2300,2500] },
+  { name:"Envy Sword", normal:[600,600], rare:[6000,6500] },
+  { name:"Gluttony Blade", normal:[200,250], rare:[1800,2000] },
+  { name:"Wrath Sword", normal:[500,550], rare:[4000,4000] },
+  { name:"Greed Scythe", normal:[550,550], rare:[5000,5500] },
+  { name:"Sloth Sword", normal:[230,250], rare:[2400,2600] },
+  { name:"Lust Sword", normal:[250,270], rare:[2500,2800] },
+  { name:"Wraith Sword", normal:[220,250], rare:null },
+  { name:"Judgment Sword", normal:[220,250], rare:[2400,2600] },
+  { name:"Phoenix Sword", normal:[400,450], rare:[3700,4000] },
+  { name:"Mercurius Rapier", normal:[200,220], rare:[2400,2500] },
+  { name:"Mars Spear", normal:[250,280], rare:[2500,2800] },
+  { name:"Venus Mace", normal:[500,550], rare:[5500,6000] },
+  { name:"Terra Sword", normal:[400,450], rare:[4500,5500] },
+  { name:"Uranus Claws", normal:[500,500], rare:[4500,4800] },
+];
+
+const TITLES = [
+  { name:"Zeus TT", value:[900,900] },
+  { name:"Hades TT", value:[2000,2200] },
+  { name:"Ares TT", value:[1800,2000] },
+  { name:"Apollo TT", value:[2200,2400] },
+  { name:"Fenrir TT", value:[2800,3000] },
+  { name:"Valk TT", value:[2200,2400] },
+  { name:"Jorm TT", value:[1600,1700] },
+  { name:"Thor TT", value:[700,800] },
+  { name:"Helheim TT", value:[6500,7000] },
+  { name:"Hermes TT", value:[3500,4000] },
+  { name:"Hephaestus TT", value:[1100,1200] },
+  { name:"Winter TT", value:[3500,3800] },
+  { name:"Medusa TT", value:[3700,4000] },
+  { name:"Pride TT", value:[4500,4800] },
+  { name:"Envy TT", value:[5000,5500] },
+  { name:"Gluttony TT", value:[2000,2200] },
+  { name:"Wrath TT", value:[1000,1100] },
+  { name:"Greed TT", value:[2400,2500] },
+  { name:"Sloth TT", value:[2400,2600] },
+  { name:"Lust TT", value:[1300,1500] },
+  { name:"Judgment TT", value:[1400,1500] },
+  { name:"Phoenix TT", value:[2800,3000] },
+  { name:"Mercurius TT", value:[1200,1300] },
+  { name:"Mars TT", value:[2500,2800] },
+  { name:"Venus TT", value:[2200,2500] },
+  { name:"Terra TT", value:[4000,4500] },
+  { name:"Uranus TT", value:[2500,3000] },
+];
+
+// Values in millions
+const ENCHANTS = {
+  "DEF1": [
+    { set:"Hades", v44:[2400,2800], v55:[3200,3600] },
+    { set:"Ares", v44:[1500,1700], v55:[2000,2200] },
+    { set:"Jormungandr", v44:[2400,2600], v55:[3000,3200] },
+    { set:"Thor", v44:[3000,3200], v55:[3800,4000] },
+    { set:"Hermes", v44:[2800,3000], v55:[3600,3800] },
+    { set:"Winter", v44:[3300,3800], v55:[4000,4500] },
+    { set:"Gluttony", v44:[3200,3200], v55:[4000,4000] },
+    { set:"Phoenix", v44:[2800,2800], v55:[3500,3500] },
+    { set:"Lust", v44:[3000,3200], v55:[3800,4000] },
+    { set:"Terra", v44:[3800,4000], v55:[4800,5000] },
+    { set:"Fenrir", v44:[800,900], v55:[1150,1250] },
+    { set:"Medusa", v44:[2800,3000], v55:[3400,3600] },
+    { set:"Zeus", v44:[500,500], v55:[800,800] },
+    { set:"Poseidon", v44:[1200,1200], v55:[1800,1800] },
+    { set:"Helheim", v44:[2600,2600], v55:[3400,3400] },
+    { set:"Apollo", v44:[1500,1500], v55:[2000,2000] },
+  ],
+  "Reduce DMG 4": [
+    { set:"Jormungandr", v44:[1700,1700], v55:[2300,2300] },
+    { set:"Terra", v44:[2800,3000], v55:[3400,3600] },
+    { set:"Thor", v44:[1400,1600], v55:[2300,2500] },
+    { set:"Hermes", v44:[2000,2100], v55:[2400,2500] },
+    { set:"Winter", v44:[1800,2200], v55:[2400,2800] },
+    { set:"Gluttony", v44:[2300,2500], v55:[2700,2900] },
+    { set:"Lust", v44:[2300,2600], v55:[2900,3200] },
+  ],
+  "Max DMG": [
+    { set:"Ares", v44:[950,950], v55:[1500,1500] },
+    { set:"Fenrir", v44:[550,550], v55:[750,750] },
+    { set:"Hephaestus", v44:[300,300], v55:[400,400] },
+    { set:"Winter", v44:[800,800], v55:[950,1000] },
+    { set:"Medusa", v44:[600,600], v55:[850,850] },
+    { set:"Gluttony", v44:[1500,1500], v55:[1900,1900] },
+    { set:"Wrath Demon", v44:[550,550], v55:[700,700] },
+    { set:"Lust", v44:[1100,1100], v55:[1500,1500] },
+    { set:"Phoenix", v44:[450,450], v55:[600,600] },
+    { set:"Terra", v44:[850,850], v55:[1000,1000] },
+  ],
+  "Increase DMG": [
+    { set:"Ares", v44:[1000,1000], v55:[1600,1600] },
+    { set:"Fenrir", v44:[550,550], v55:[750,750] },
+    { set:"Hephaestus", v44:[300,300], v55:[400,400] },
+    { set:"Winter", v44:[750,750], v55:[900,900] },
+    { set:"Medusa", v44:[600,600], v55:[800,800] },
+    { set:"Gluttony", v44:[1500,1500], v55:[1900,1900] },
+    { set:"Wrath Demon", v44:[550,550], v55:[700,700] },
+    { set:"Lust", v44:[1100,1100], v55:[1500,1500] },
+    { set:"Phoenix", v44:[450,450], v55:[600,600] },
+    { set:"Terra", v44:[850,850], v55:[1000,1000] },
+  ],
+  "HP Enchant": [
+    { set:"Ares", v44:[850,850], v55:[1200,1200] },
+    { set:"Fenrir", v44:[500,500], v55:[650,650] },
+    { set:"Hephaestus", v44:[350,350], v55:[450,450] },
+    { set:"Winter", v44:[850,850], v55:[1000,1100] },
+    { set:"Medusa", v44:[550,550], v55:[800,800] },
+    { set:"Gluttony", v44:[1600,1600], v55:[2200,2200] },
+    { set:"Wrath Demon", v44:[500,500], v55:[650,650] },
+    { set:"Lust", v44:[1100,1100], v55:[1500,1500] },
+    { set:"Phoenix", v44:[550,550], v55:[650,650] },
+    { set:"Terra", v44:[800,800], v55:[1100,1100] },
+  ],
+  "DEF Enchant": [
+    { set:"Ares", v44:[800,800], v55:[950,950] },
+    { set:"Fenrir", v44:[450,450], v55:[600,600] },
+    { set:"Hephaestus", v44:[250,250], v55:[350,350] },
+    { set:"Winter", v44:[650,650], v55:[800,800] },
+    { set:"Medusa", v44:[500,500], v55:[750,750] },
+    { set:"Gluttony", v44:[1400,1400], v55:[1800,1800] },
+    { set:"Wrath Demon", v44:[400,400], v55:[600,600] },
+    { set:"Lust", v44:[1000,1000], v55:[1300,1300] },
+    { set:"Phoenix", v44:[350,350], v55:[550,550] },
+    { set:"Terra", v44:[950,950], v55:[1200,1200] },
+  ],
+  "Crit Rate": [
+    { set:"Poseidon", v44:[650,650], v55:[850,850] },
+    { set:"Wrath Demon", v44:[650,650], v55:[850,850] },
+  ],
+  "Crit DMG": [
+    { set:"Poseidon", v44:[600,600], v55:[800,800] },
+    { set:"Wrath Demon", v44:[600,600], v55:[800,800] },
+  ],
+};
+
+const ACC_ENCHANTS = [
+  { name:"Love Ring", value:[800,800] },
+  { name:"Pos Shield", value:[150,200] },
+  { name:"Ares Shield", value:[200,250] },
+  { name:"Sp Shield", value:[300,350] },
+  { name:"NM Shield", value:[300,300] },
+  { name:"Starmoon Ring", value:[500,500] },
+  { name:"Xmas Ring", value:[300,300] },
+  { name:"Cancer Ring", value:[60,80] },
+];
+
+const PETS_NORMAL = [
+  { name:"Tiger", P5:[50,60], P6:[80,80], P7:[100,120], P8:[160,180], P9:[200,230], P10:[400,450] },
+  { name:"Fox / Dragon", P5:[100,100], P6:[140,140], P7:[200,200], P8:[350,350], P9:[700,720], P10:[1400,1400] },
+  { name:"Thorn Shooter", P5:[70,70], P6:[100,115], P7:[170,170], P8:[220,230], P9:[300,300], P10:[400,400] },
+  { name:"Shark", P5:[220,220], P6:[300,300], P7:[400,450], P8:[700,750], P9:[1400,1400], P10:[4800,4800] },
+  { name:"Cumulus Bird", P5:[120,120], P6:[180,180], P7:[250,250], P8:[300,300], P9:[450,450], P10:[800,800] },
+  { name:"T-Rex", P5:[200,200], P6:[250,250], P7:[300,300], P8:[450,450], P9:[750,750], P10:[2200,2200] },
+  { name:"Pegasus", P5:[300,350], P6:[400,450], P7:[500,550], P8:[750,750], P9:[1300,1300], P10:[3000,3000] },
+  { name:"Scorpion", P5:[250,250], P6:[350,350], P7:[550,550], P8:[700,700], P9:[1200,1200], P10:[3000,3000] },
+  { name:"Mantis", P5:[350,350], P6:[500,500], P7:[750,750], P8:[900,900], P9:[1400,1400], P10:[4000,5000] },
+  { name:"Wukong", P5:[300,300], P6:[450,450], P7:[650,650], P8:[950,950], P9:[1600,1600], P10:[2200,2200] },
+  { name:"Snake", P5:[300,300], P6:[450,450], P7:[550,550], P8:[700,700], P9:[1000,1000], P10:[2500,2500] },
+];
+const PETS_RARE = [
+  { name:"Tiger", P5:[350,350], P6:[500,500], P7:[800,800], P8:[1400,1400], P9:[2300,2300], P10:[6500,7000] },
+  { name:"Fox / Dragon", P5:[500,500], P6:[800,800], P7:[1300,1300], P8:[5000,5000], P9:[8000,8000], P10:[12000,12000] },
+  { name:"Thorn Shooter", P5:[400,400], P6:[700,700], P7:[1000,1000], P8:[1400,1400], P9:[2200,2200], P10:[9000,9000] },
+  { name:"Shark", P5:[1100,1100], P6:[1800,1800], P7:[3000,3500], P8:[5000,6000], P9:[8000,10000], P10:[30000,35000] },
+  { name:"Cumulus Bird", P5:[500,500], P6:[850,850], P7:[1500,1500], P8:[2600,2600], P9:[3800,3800], P10:[10000,12000] },
+  { name:"T-Rex", P5:[650,650], P6:[1000,1000], P7:[2200,2200], P8:[3500,3500], P9:[5800,5800], P10:[17000,20000] },
+  { name:"Pegasus", P5:[900,900], P6:[1800,1800], P7:[2300,2500], P8:[3500,3700], P9:[9000,10000], P10:[25000,30000] },
+  { name:"Scorpion", P5:[800,800], P6:[1500,1600], P7:[2000,2200], P8:[3500,3500], P9:[7000,8000], P10:[20000,20000] },
+  { name:"Mantis", P5:[1500,2000], P6:[3000,3000], P7:[4000,4000], P8:[8000,8000], P9:[12000,15000], P10:[22000,25000] },
+  { name:"Wukong", P5:null, P6:[3500,3500], P7:null, P8:null, P9:null, P10:null },
+  { name:"Snake", P5:[1600,1600], P6:[2400,2400], P7:[3500,3500], P8:[4800,4800], P9:[8000,10000], P10:[35000,35000] },
+];
+
+const PET_BOOKS = [
+  { name:"Revive", purple:4, yellow:70 },
+  { name:"Berserk", purple:10, yellow:null },
+  { name:"Alacrity", purple:2, yellow:50 },
+  { name:"Devotion", purple:5, yellow:150 },
+  { name:"Lifesteal", purple:3, yellow:null },
+  { name:"Regain HP", purple:5, yellow:null },
+  { name:"Protection", purple:5, yellow:300 },
+  { name:"Surge", purple:3, yellow:450 },
+  { name:"Strong", purple:2, yellow:300 },
+  { name:"Diligent", purple:2, yellow:60 },
+  { name:"Luck", purple:2, yellow:60 },
+  { name:"Hatching", purple:2, yellow:60 },
+  { name:"Mining", purple:3, yellow:500 },
+  { name:"Coins", purple:3, yellow:50 },
+  { name:"Wild Rege", purple:30, yellow:null },
+  { name:"Crushin Blow", purple:5, yellow:180 },
+  { name:"Giant", purple:50, yellow:null },
+  { name:"HP", purple:2, yellow:null },
+  { name:"Healin Power", purple:10, yellow:null },
+  { name:"Power Crush", purple:4, yellow:200 },
+  { name:"Block", purple:5, yellow:70 },
+  { name:"Abso Def", purple:2, yellow:20 },
+  { name:"Red DMG", purple:5, yellow:null },
+  { name:"DEF", purple:3, yellow:null },
+  { name:"Mega Smash", purple:2, yellow:80 },
+  { name:"Wild Recov", purple:30, yellow:null },
+  { name:"Fight tt End", purple:80, yellow:null },
+  { name:"Combo Atk", purple:1, yellow:500 },
+  { name:"Addi DMG", purple:2, yellow:80 },
+  { name:"Crit DMG", purple:3, yellow:null },
+  { name:"Crit Rate", purple:3, yellow:null },
+  { name:"Incr DMG", purple:2, yellow:null },
+  { name:"DMG", purple:2, yellow:null },
+];
+
+const MISC_SETS = [
+  { name:"Martial Spirit", v44:[100,100], v55:[140,140] },
+  { name:"Martial Peak", v44:[350,400], v55:[500,550] },
+  { name:"Meow Set", v44:[120,140], v55:[150,170] },
+  { name:"RP Set", v44:[30,40], v55:[50,60] },
+  { name:"Archangel Set", v44:[140,140], v55:[180,180] },
+  { name:"Frozen Prince Set", v44:[55,55], v55:[65,65] },
+];
+const MISC_ITEMS = [
+  { name:"Pet skill map", value:[0.025,0.025] },
+  { name:"Advance skill map", value:[15,15] },
+  { name:"Escape Dominator Title", value:[100,100] },
+  { name:"Apex Fighter Title", value:[500,600] },
+  { name:"Prime Fighter Title", value:[100,100] },
+  { name:"Death Scythe", value:[75,80] },
+  { name:"Shapeless Sword", value:[100,135] },
+  { name:"Moon Scythe", value:[100,120] },
+  { name:"Xmas Sword 2022", value:[200,200] },
+  { name:"Xmas Sword 2022 (Regain4)", value:[300,300] },
+  { name:"Flying Cross", value:[50,55] },
+  { name:"Dimensional Rift SW", value:[60,70] },
+  { name:"Frozen Prince SW", value:[65,65] },
+  { name:"Ares Shield", value:[30,35] },
+  { name:"Sp Shield", value:[35,40] },
+  { name:"Poseidon Shield", value:[20,25] },
+  { name:"NM Shield", value:[20,25] },
+  { name:"Love Ring", value:[550,550] },
+  { name:"Xmas Ring", value:[50,50] },
+  { name:"Starmoon Ring", value:[80,80] },
+  { name:"Devil Wings", value:[20,25] },
+  { name:"Demon Bat", value:[15,20] },
+  { name:"Cancer Ring", value:[10,15] },
+];
+const GATS = [
+  { name:"Og Gat", value:[50,50] },
+  { name:"Gold Gat", value:[70,70] },
+  { name:"FC Gat", value:[100,120] },
+  { name:"Oc Gat", value:[70,80] },
+  { name:"Shadow Gat", value:[70,80] },
+  { name:"Freya Wand", value:[80,80] },
+  { name:"Xmas Wand", value:[80,90] },
+  { name:"Oc Wand", value:[90,90] },
+  { name:"Oc Wand Rare", value:[800,900] },
+];
+
+// Set abilities & info data
+const SET_INFO = {
+  "Poseidon": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    subArmor:"Shield: DMG +1, DEF +2 | Ability: 50% chance to recover 2 HP on crit",
+    title:"None",titleStats:"",
+    a5:"CRIT DMG +50%. On crit, 35% chance: immune to control + healing +100% for 2s",
+    a24:"CRI Rate +15%",a44:"CRI DMG +90%. On crit, 35% chance: immune to control + healing +100% for 2s",
+    weapon:"Poseidon Trident (DMG:22) — CRI Rate +25%, long-range water bubbles",
+    weaponR:"Unsealed Trident (DMG:23) — CRI Rate +30%, fast water bubbles",
+  },
+  "Zeus": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"King of the Gods",titleStats:"HP +15",
+    a5:"For every 1% HP reduction, Lifesteal +0.25%",
+    a24:"When MAX HP ≥ 110, HP +20",a44:"For every 1% HP reduction, Lifesteal +0.4% + Immunity to Poison",
+    weapon:"Zeus' Lightning (DMG:22) — For every 2% HP reduction, Additional DMG +0.16",
+    weaponR:"Zeus' Lightning Rare (DMG:23) — Same ability",
+  },
+  "Hades": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"God Of Dead",titleStats:"HP +10, Increase DMG +5%",
+    a5:"20% chance to summon Cerberus (15s, up to 2): causes 6 DMG + death mark, marked target takes +2 DMG",
+    a24:"When DEF ≥ 28, HP +20",a44:"40% chance to summon Cerberus (15s, up to 2): same ability",
+    weapon:"Sword of Hades (DMG:22) — Every 4th hit: +6% Max HP DMG + restores 8% Max HP",
+    weaponR:"Sword of Hades Rare (DMG:23) — Same ability",
+  },
+  "Ares": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    subArmor:"Shield: HP +6, DEF +2 | 15% chance attacker gets Grievous Wounds for 3s",
+    title:"God of War",titleStats:"HP +5, CRI Rate +15%",
+    a5:"Every 5th hit: shield for 3s — immune to active damage once",
+    a24:"DMG +3",a44:"Every 4th hit: shield for 5s — immune to active damage once",
+    weapon:"Spear of Ares (DMG:22) — Every 3rd hit: restore 5% Max HP, reduce opponent DEF by 3 for 5s",
+    weaponR:"Spear of Ares Rare (DMG:23) — Same ability",
+  },
+  "Apollo": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"God Of The Sun",titleStats:"HP +5, 15% chance to burn nearby enemies (4 DMG/0.5s for 1s)",
+    a5:"Every 5th hit: sun rises, 4 DMG/s to all nearby for 3s",
+    a24:"When DEF ≥ 26, DEF +1",a44:"Every 4th hit: sun rises, 6 DMG/s to all nearby for 3s",
+    weapon:"Apollo's Sun Sword (DMG:22, Lifesteal +6%) — 20% chance to stun for 1s",
+    weaponR:"Apollo's Eclipse Sword Rare (DMG:23, Lifesteal +6%) — Same",
+  },
+  "Fenrir": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Fenrir Wolf",titleStats:"HP +5, on each hit: DMG +1 (up to 6 stacks, 4s); 36% chance to lose 1 stack when attacked",
+    a5:"Every 6th hit: Violent State (ATK+4, Lifesteal+20%, DEF-4) for 3s; restores 20% of damage dealt (max 20)",
+    a24:"When MAX HP ≥ 140, Reduce DMG +12%",a44:"Every 5th hit: Violent State (ATK+6, Lifesteal+25%, DEF-4) for 3s; restores 25% of damage dealt (max 25)",
+    weapon:"Fenrir's God-Killing Sword (DMG:22, Lifesteal+6%) — Every 4th hit: 8 DMG to all nearby",
+    weaponR:"Same (DMG:23)",
+  },
+  "Valkyrie": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"Valkyrie",titleStats:"HP +5, each attack randomly causes 0-2 Additional DMG",
+    a5:"HP >40%: Reduce DMG +15%. HP <40%: transform into god form — 6 DMG to nearby, Lifesteal+12%, Additional DMG+1",
+    a24:"When DEF ≥ 26, HP +15",a44:"HP >40%: Reduce DMG +18%. HP <40%: god form — 10 DMG to nearby, Lifesteal+18%, Additional DMG+1",
+    weapon:"Valkyrie's Divine Dual Blades (DMG:22, Lifesteal+8%) — 35% chance combo attack",
+    weaponR:"Valkyrie's Fallen Dual Blades Rare (DMG:23, Lifesteal+8%) — Same",
+  },
+  "Jormungandr": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"World Serpent",titleStats:"HP +10, Reduce DMG +3%",
+    a5:"Every 5th hit: shield for 3s (health = 20% of DEF). On shatter: restore 3 HP",
+    a24:"When DEF ≥ 26, Reduce DMG +12%",a44:"Every 4th hit: shield for 3s (health = 25% of DEF). On shatter: restore 6 HP",
+    weapon:"Jormungandr's White Snake Sword (DMG:22) — Each hit: Additional DMG +1 (up to 8 stacks, 4s); 36% chance to lose 1 stack when attacked",
+    weaponR:"Golden Snake Sword Rare (DMG:23) — Same but 36% chance to reduce stack",
+  },
+  "Thor": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"God of Thunder",titleStats:"HP +5, Additional DMG +1",
+    a5:"When taking damage: if opponent DMG > DEF, reduce damage 20%; if DMG < DEF, recover 1 HP",
+    a24:"When MAX HP ≥ 110, DEF +1.5",a44:"When taking damage: if opponent DMG > DEF, reduce 26%; if DMG < DEF, recover 2 HP",
+    weapon:"Mjollnir (DMG:22) — Each hit gains 1 static charge (25% discharge: each stack deals +3 DMG, restores HP)",
+    weaponR:"Mjollnir Rare (DMG:23) — Same",
+  },
+  "Helheim": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"Lord of Helheim",titleStats:"HP +5, on player kill: regain 20% HP immediately",
+    a5:"Every 5th hit: steal HP (= 20% of opponent's DEF) + poison for 1s (healing halved)",
+    a24:"When MAX HP ≥ 110, DEF +1.5",a44:"Every 4th hit: steal HP (= 25% of opponent's DEF) + poison for 1s",
+    weapon:"Helheim Sword (DMG:22) — Every 4th hit: steal HP (= 20% your DEF) + 6 DMG for 1s",
+    weaponR:"Helheim Sword Rare (DMG:23) — Same",
+  },
+  "Hermes": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"God of Boundaries",titleStats:"HP +5, Speed +5%, Regain HP (4s) +2",
+    a5:"20% chance to summon tornado for 3s (up to 2): 4 DMG/s to nearby + 15% slow for 2s, restore 1 HP to owner",
+    a24:"When MAX HP ≥ 110, Reduce DMG +12%",a44:"40% chance to summon tornado: 4 DMG/s, 15% slow, restore 2 HP",
+    weapon:"Hermes's Scepter Sword (DMG:22) — Per 10% HP lost: Speed +1.5%; 35% beheading: 20% target missing HP DMG (max 25), 40% heals",
+    weaponR:"Hermes's Scepter Sword Rare (DMG:23) — Same",
+  },
+  "Hephaestus": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"God of Fire",titleStats:"HP +5, 25% chance +3% HP additional DMG when attacking",
+    a5:"Reduce DMG+8%; melee/skill DMG: +1 fireball energy, Reduce DMG -2.5% for 5s; at 12 stacks: reset, get 3 fireballs (3s); each fireball: 3% HP DMG + equal heal. Trigger: on damage release 1 fireball; on melee 25% release all",
+    a24:"When HP ≥ 140, Reduce DMG +12%",a44:"Same but fireball = 4% HP DMG, 35% chance to release all",
+    weapon:"Flame Excalibur (DMG:22) — Every 4th attack: enemy wrapped in fire vortex, 1-3 attacks in 2s, each 3% HP DMG + heal",
+    weaponR:"Flame Excalibur Rare (DMG:23) — Same",
+  },
+  "Winter": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"God of Winter",titleStats:"HP +10, receive +10% healing effect",
+    a5:"Every 6th hit: frost field for 3s (DEF+3, Lifesteal+10%, healing+30%); enemies touching boundary freeze",
+    a24:"When MAX HP ≥ 140, Reduce DMG +12%",a44:"Every 5th hit: frost field for 3s (DEF+5, Lifesteal+15%, healing+50%); freeze on boundary",
+    weapon:"Permafrost Sword (DMG:22, Lifesteal+6%) — Every 5th hit: freeze target 2s (can't move, +1-5 DMG when attacked)",
+    weaponR:"Permafrost Sword Rare (DMG:23) — Same",
+  },
+  "Medusa": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"The Gorgon",titleStats:"DMG +3, 15% chance Speed -15% on target for 2s",
+    a5:"Every 6 attacks: petrifying gaze (3s) — targets facing you: Speed -15%; if >1s duration, fully petrified (dazed); attack petrified target: +15% DMG + equal heal",
+    a24:"When DMG ≥ 32, Reduce DMG +12%",a44:"Every 5 attacks: petrifying gaze — Speed -20%; petrified gets +15% DMG + heal",
+    weapon:"Medusa's Spear (DMG:22) — 25% chance to poison target (up to 3 stacks, 3s): healing halved, 10% DMG/s per stack + equal heal",
+    weaponR:"Medusa's Spear Rare (DMG:23) — Same",
+  },
+  "Pride": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"Sin of Pride",titleStats:"HP +5, on melee hit: recover HP = 4% of own DEF",
+    a5:"For every 1% HP reduction, Increase DMG +0.6%; HP <20%: immune to control",
+    a24:"When MAX HP ≥ 110, Reduce DMG +12%",a44:"For every 1% HP reduction, Increase DMG +0.8%; HP <30%: immune to control",
+    weapon:"Sin of Pride Sword (DMG:22) — Each hit: DMG +2.5 (up to 7 stacks, 4s); when DMG ≥ 40, Lifesteal +12%",
+    weaponR:"Sin of Pride Sword Rare (DMG:23) — Same",
+  },
+  "Envy": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Sin of Envy",titleStats:"HP +5, 50% chance to restore 2% Max HP on melee",
+    a5:"Melee: 30% chance random buff — if enemy ATK > yours: DEF+5 or ATK+12 for 2s; else: Lifesteal+15% or Reduce DMG 12%",
+    a24:"When MAX HP ≥ 140, Reduce DMG +12%",a44:"45% chance same buff",
+    weapon:"Sin of Envy Blade (DMG:22) — Deals 3% Max HP extra to target; if target HP > yours, restore 4% Max HP",
+    weaponR:"Sin of Envy Blade Rare (DMG:23) — Same",
+  },
+  "Gluttony": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Sin of Gluttony",titleStats:"HP +5, 30% chance: deal 3% missing HP DMG + heal same",
+    a5:"Melee: 20% chance to summon Explosive Flies (detonate 1.5s, 10 DMG, stun 1s, heal 3% HP, max 1)",
+    a24:"When MAX HP ≥ 140, Reduce DMG +12%",a44:"25% chance, heal 5% HP, max 2 flies",
+    weapon:"Sin of Gluttony Blade (DMG:22) — Melee/skill DMG: Lifesteal+8% (max 6 stacks); at 6 stacks: reset, 12 DMG nearby, Additional DMG+3 for 2s",
+    weaponR:"Same Rare (DMG:23)",
+  },
+  "Wrath Demon": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Sins of Wrath",titleStats:"HP +5, on crit: 50% chance Reduce DMG +10% for 1s",
+    a5:"Rage: +1 on hit, +2 on crit (max 10). <5 rage: recover 1 HP per rage on damage. >5 rage: CRI Rate +5% per rage. At max: next attack 2.5× DMG, restore 30% HP, clear rage",
+    a24:"When HP ≥ 140, Reduce DMG +12%",a44:"Same but recover 1-2 HP per rage; max rage restores 50% HP",
+    weapon:"Wrath Demon Sword (DMG:22, Lifesteal+8%, CRI DMG+50%) — Each hit: CRI Rate +12% (up to 4 stacks, 4s); 36% chance to lose 1 stack when attacked",
+    weaponR:"Wrath Demon Spirit Sword Rare (DMG:23) — Same",
+  },
+  "Greed": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Sins of Greed",titleStats:"HP +5, every 2 attacks drains 1% HP from target",
+    a5:"Every 2 attacks: steal random attribute from target for 1s (options: 4 DMG, 2% HP, 8% Reduce DMG)",
+    a24:"When HP ≥ 140, Reduce DMG +12%",a44:"Each attack: steal random attribute for 1s",
+    weapon:"Sin of Greed Golden Scythe (DMG:22) — 20% chance: Greed's Desire on target (DMG -15%, drain 2% HP/s for 3s, up to 3 stacks)",
+    weaponR:"Crystal Scythe Rare (DMG:23) — 25% chance, drain 4% HP/s for 2s",
+  },
+  "Sloth": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Sins of Sloth",titleStats:"HP +5, after every 3rd hit: Additional DMG +3 for 2s",
+    a5:"After attacking: Sleep for 2s — damage dealt accumulates; on end: life shield = 40% of accumulated DMG (max 15)",
+    a24:"When HP ≥ 140, Reduce DMG +12%",a44:"Same but shield = 50% accumulated DMG (max 18)",
+    weapon:"Sin of Sloth Calamity Blade (DMG:22, Lifesteal+6%) — After attacking: Sloth for 2s; next attack during effect deals 1+duration×DMG, clears Sloth",
+    weaponR:"Sloth Calamity Rare (DMG:23) — Same",
+  },
+  "Lust": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Sins of Lust",titleStats:"HP +5, attacking lower HP enemies increases DMG by 6%",
+    a5:"Melee: 20% chance to summon Lust Avatar (14s) — heals 4 HP every 2s, deals 8 DMG/s to target",
+    a24:"When MAX HP ≥ 110, Reduce DMG +12%",a44:"25% chance avatar, heals 6 HP every 2s",
+    weapon:"Lust Charm Dagger (DMG:22) — 20% charm enemy (can't move) for 2s; attack charmed enemy: Additional DMG +8",
+    weaponR:"Lust Charm Dagger Rare (DMG:23) — Same",
+  },
+  "Judgment": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Judgment Angel",titleStats:"HP +5, 5% chance to deal 18 DMG on melee",
+    a5:"When accumulated DMG reaches 40: next attack reduces target Reduce DMG by 10% for 1s + Lifesteal+15%, 2 true DMG for 2s; reset",
+    a24:"When MAX HP ≥ 140, Reduce DMG +12%",a44:"Same but Lifesteal+20%, 3 true DMG",
+    weapon:"Judgment Angel's Sealing Fist Blade (DMG:22, Lifesteal+6%) — When accumulated DMG reaches 32: deal 18 DMG to target + Additional DMG+3 for 2s",
+    weaponR:"Same Rare (DMG:23)",
+  },
+  "Phoenix": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Blaze Phoenix",titleStats:"HP +5, 30% chance to restore 3% Max HP when hit",
+    a5:"Each attack burns self (3% Max HP) dealing equal DMG to target; near death: Phoenix Egg (restore 20% HP, DEF-50%, +5%/s HP). If survives 2s: rebirth (restore 20% Max HP)",
+    a24:"When MAX HP ≥ 140, Reduce DMG +12%",a44:"Same but rebirth restores 25% Max HP; egg restores 25% HP",
+    weapon:"Blaze Phoenix Reborn Warblade (DMG:22) — 30% chance restore 9% Max HP on hit; after hit: +20 HP cap (max 4 stacks, 3s); 24% chance lose stack on damage",
+    weaponR:"Same Rare (DMG:23)",
+  },
+  "Mercurius": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Mercury's Omen",titleStats:"HP +5, Lifesteal +8%",
+    a5:"After 8s out of combat or every 6 attacks: stealth for 5s; next attack: Additional DMG+8, Lifesteal+15%, then Speed+10% for 3s",
+    a24:"When MAX HP ≥ 140, Reduce DMG +12%",a44:"Every 5 attacks stealth; next attack: Additional DMG+12, Lifesteal+25%, Speed+10%",
+    weapon:"Mercurius's Rapier (DMG:22) — If no damage taken in 2.5s, next attack deals 3× DMG",
+    weaponR:"Mercurius's Rapier Rare (DMG:23) — Same",
+  },
+  "Mars": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Mar's Omen",titleStats:"HP +5, for every 10% HP reduction: DMG +1",
+    a5:"For every 10% HP reduction: DMG +1, DEF +0.5. When receiving fatal damage: 20% chance 1s invincibility, Lifesteal+12%, immune to control for 3s",
+    a24:"When MAX HP ≥ 140, Lifesteal +15%",a44:"Same but DMG +1.5, DEF +0.5; Lifesteal+15%",
+    weapon:"Mars's Spear (DMG:22, Lifesteal+8%, Additional DMG+2) — Per 5% HP reduction: Increase DMG +3%",
+    weaponR:"Mars's Spear Rare (DMG:23) — Same",
+  },
+  "Venus": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"Venus's Omen",titleStats:"HP +5, after each kill: Lifesteal +4% (up to 5 stacks; -2 on death)",
+    a5:"Every 6 melee attacks: Counter Shield (12 HP) + immune to control for 3s; if shield breaks: next attack Additional DMG +12",
+    a24:"When DEF ≥ 26, Reduce DMG +12%",a44:"Every 5 attacks: Counter Shield (18 HP), immune to control; if breaks: Additional DMG +18",
+    weapon:"Venus's Mace (DMG:22) — Each attack gains Radiance Force (50% chance to release, up to 8 stacks); on release: each stack = +0.6× DMG",
+    weaponR:"Venus's Mace Rare (DMG:23) — Same",
+  },
+  "Terra": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:8},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"Terra's Omen",titleStats:"HP +10, regain 5 HP every 4s",
+    a5:"On taking damage: 25% chance Earth Armor — restore HP = 12% DEF, DMG reduction +15%, immune to control for 1s",
+    a24:"When DEF ≥ 26, Reduce DMG +12%",a44:"40% chance, restore HP = 20% DEF",
+    weapon:"Terra Sky Sword (DMG:22) — Every 4 attacks: deal 2-4 instances of 20% DEF DMG + Silence effect for 1.5s",
+    weaponR:"Terra Sky Sword Rare (DMG:23) — Same",
+  },
+  "Uranus": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Legguards",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"Uranus's Omen",titleStats:"HP +10, when HP <50%: DMG +5",
+    a5:"Each melee hit: +1 Soul Stack (lose 1 every 3s); each stack blocks 3% ATK DMG. At 5 stacks: Burst Mode (ATK+20% for 3s), clear all stacks",
+    a24:"When DMG ≥ 32, Reduce DMG +12%",a44:"Same but each stack blocks 5% ATK; Burst Mode ATK+30%",
+    weapon:"Uranus's Claw Sword (DMG:22) — In combat: every 1s, nearby enemies get 1 Soul Bomb (max 5); 40% chance to detonate all (15% ATK each + heal); if 3+ detonated: 20% ATK each",
+    weaponR:"Uranus's Claw Sword Rare (DMG:23) — Same",
+  },
+  "Wraith Knight": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Legguards",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"N/A",titleStats:"No title",
+    a5:"Lifesteal +12%",
+    a24:"Every 4th hit: Additional DMG = 20% of your own ATK",
+    a44:"Lifesteal +18%",
+    weapon:"Wraith Sword (DMG:22) — No listed weapon ability",weaponR:"N/A",
+  },
+  "Martial Peak": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Leggings",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cape",hp:22,def:1,dmg:1.5}],
+    title:"Apex Fighter",titleStats:"HP +5, when HP < 30%: Additional DMG +3",
+    a5:"Attacks have a 20% chance to expose the enemy, applying Weak Point (max 3 stacks, 2s). When attacking a Weak Point enemy: steal 2% of your own MAX HP per stack.",
+    a24:"When MAX HP ≥ 140, Damage Reduction +12%",
+    a44:"Attacks have a 30% chance to expose the enemy, applying Weak Point (max 3 stacks, 2s). When attacking a Weak Point enemy: steal 2% of your own MAX HP per stack.",
+    weapon:"No dedicated weapon listed",weaponR:"N/A",
+  },
+  "Archangel Set": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Leggings",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cape",hp:22,def:1,dmg:1.5}],
+    title:"N/A",titleStats:"No sub-title listed",
+    a5:"When you receive fatal damage: immediately clear all control effects and become immune to all damage and control for 2 seconds (\"Divine Invincibility\"). On end: restore 20% MAX HP, gain Additional DMG +3, deal 20 holy true damage to all nearby enemies. CD: 120s.",
+    a24:"When MAX HP ≥ 140, Reduce DMG +10%. For every 8 seconds without taking damage, Reduce DMG +5% additionally (lasts 5s or removed upon damage).",
+    a44:"Same as 5/5 but restore 25% MAX HP and Additional DMG +5 on end. CD: 120s.",
+    weapon:"No dedicated weapon listed",weaponR:"N/A",
+  },
+  "Meow Set": {
+    pieces:[{n:"Helmet",hp:16,def:3,dmg:1.5},{n:"Armor",hp:14,def:7,dmg:1.5},{n:"Leggings",hp:14,def:5,dmg:1.5},{n:"Boots",hp:16,def:3,dmg:1.5},{n:"Cloak",hp:22,def:1,dmg:1.5}],
+    title:"N/A",titleStats:"No title listed",
+    a5:"After each attack hits the 6th time: trigger invisibility for 2s. While invisible, melee attacks gain Additional DMG +2 per hit (max 4 stacks; lose 1 stack when attacked). On state end: restore HP = 20% of damage dealt during invisibility (capped at 15).",
+    a24:"When HP ≥ 140, Reduce DMG +8%. In Flag Conquest Mode: Lifesteal +10%.",
+    a44:"After each attack hits the 5th time: invisibility for 2s. While invisible, melee attacks gain Additional DMG +3 per hit (max 4 stacks; lose 1 stack when attacked). On state end: restore HP = 25% of damage dealt (capped at 20).",
+    weapon:"No dedicated weapon listed",weaponR:"N/A",
+  },
+  "Martial Spirit": {
+    pieces:[{n:"Helmet",hp:10,def:4},{n:"Armor",hp:8,def:8},{n:"Leggings",hp:8,def:6},{n:"Boots",hp:10,def:4},{n:"Cloak",hp:18,def:2}],
+    title:"N/A",titleStats:"No title listed in data",
+    a5:"Ability info not available in source data",
+    a24:"Ability info not available in source data",
+    a44:"Ability info not available in source data",
+    weapon:"No dedicated weapon listed",weaponR:"N/A",
+  },
+};
+
+// ===================== HELPERS =====================
+function fmtM(val) {
+  if (val === null || val === undefined) return "—";
+  if (val >= 1000) return (val/1000).toFixed(1).replace(/\.0$/,'') + "B";
+  if (val >= 1) return val + "M";
+  return val + "M";
+}
+function fmtRange(arr) {
+  if (!arr) return "—";
+  if (arr[0] === arr[1]) return fmtM(arr[0]);
+  return fmtM(arr[0]) + " – " + fmtM(arr[1]);
+}
+function getInitial(name) { return name.charAt(0).toUpperCase(); }
+function getColor(name) {
+  const colors = ['#4f8ef7','#7c5cfc','#f5c842','#3ecf78','#f04f5f','#f5842c','#54c8e8','#e84cad'];
+  let hash = 0;
+  for (let c of name) hash = (hash << 5) - hash + c.charCodeAt(0);
+  return colors[Math.abs(hash) % colors.length];
+}
+
+// ===================== SETS PAGE =====================
+let setsFilter = 'all';
+function filterSets(group, btn) {
+  setsFilter = group;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSets();
+}
+function renderSets() {
+  const grid = document.getElementById('setsGrid');
+  const data = setsFilter === 'all' ? SETS : SETS.filter(s => s.group === setsFilter);
+  grid.innerHTML = data.map(s => renderSetCard(s)).join('');
+}
+function renderSetCard(s) {
+  const info = SET_INFO[s.name];
+  let totalHP=0, totalDEF=0, totalDMG=0;
+  if (info) {
+    info.pieces.forEach(p => { totalHP+=p.hp||0; totalDEF+=p.def||0; totalDMG+=(p.dmg||0); });
+  }
+  const infoTab = info ? `
+    <div class="card-pane" id="inf-${s.name}">
+      ${info ? `
+      <div class="info-section">
+        <h4>Armor Pieces</h4>
+        <div class="stat-grid">
+          ${info.pieces.map(p=>`<div class="stat-chip"><span class="sk">${p.n}</span><span class="sv">HP+${p.hp} DEF+${p.def}${p.dmg?` DMG+${p.dmg}`:''}</span></div>`).join('')}
+        </div>
+      </div>
+      ${totalHP||totalDEF||totalDMG ? `<div class="total-stats">
+        ${totalHP?`<div class="total-chip"><span class="tk">Total HP</span><span class="tv">+${totalHP}</span></div>`:''}
+        ${totalDEF?`<div class="total-chip"><span class="tk">Total DEF</span><span class="tv">+${totalDEF}</span></div>`:''}
+        ${totalDMG?`<div class="total-chip"><span class="tk">Total DMG</span><span class="tv">+${totalDMG}</span></div>`:''}
+      </div>` : ''}
+      ${info.subArmor?`<div class="info-section"><h4>Sub Armor</h4><div class="ability-box">${info.subArmor}</div></div>`:''}
+      <div class="info-section"><h4>Title</h4>
+        <div class="ability-box"><strong>${info.title}</strong>${info.titleStats?` — ${info.titleStats}`:''}</div>
+      </div>
+      <div class="info-section"><h4>Set Abilities</h4>
+        <div class="ability-box"><strong>5/5 (Non-Enhanced):</strong> ${info.a5}</div>
+        <div class="ability-box"><strong>2/4 Enhanced:</strong> ${info.a24}</div>
+        <div class="ability-box"><strong>4/4 Enhanced:</strong> ${info.a44}</div>
+      </div>
+      <div class="info-section"><h4>Weapons</h4>
+        <div class="ability-box"><strong>Normal:</strong> ${info.weapon}</div>
+        <div class="ability-box"><strong>Rare/Unsealed:</strong> ${info.weaponR||'—'}</div>
+      </div>
+      ` : '<div class="empty">Info coming soon</div>'}
+    </div>` : `<div class="card-pane" id="inf-${s.name}"><div class="empty">Info coming soon</div></div>`;
+
+  return `<div class="set-card" id="sc-${s.name}">
+    <div class="card-header" onclick="toggleCard('${s.name}')">
+      <div class="card-icon" style="background:linear-gradient(135deg,${getColor(s.name+'2')},${getColor(s.name)})">${getInitial(s.name)}</div>
+      <div>
+        <div class="card-name">${s.name}</div>
+        <div class="card-sub">${fmtRange(s.v44)} · ${fmtRange(s.v55)}</div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-tabs">
+        <div class="card-tab active" onclick="switchCardTab(event,'val-${s.name}','${s.name}')">💰 Value</div>
+        <div class="card-tab" onclick="switchCardTab(event,'inf-${s.name}','${s.name}')">📋 Info</div>
+      </div>
+      <div class="card-pane active" id="val-${s.name}">
+        <div class="val-row"><span class="val-label">4/4 Value</span><span class="val-badge">${fmtRange(s.v44)}</span></div>
+        <div class="val-row"><span class="val-label">5/5 Value</span><span class="val-badge v55">${fmtRange(s.v55)}</span></div>
+      </div>
+      ${infoTab}
+    </div>
+  </div>`;
+}
+function toggleCard(name) {
+  const card = document.getElementById('sc-'+name);
+  card.classList.toggle('expanded');
+}
+function switchCardTab(e, paneId, setName) {
+  const card = document.getElementById('sc-'+setName);
+  card.querySelectorAll('.card-tab').forEach(t=>t.classList.remove('active'));
+  card.querySelectorAll('.card-pane').forEach(p=>p.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+// ===================== WEAPONS PAGE =====================
+function renderWeapons() {
+  const grid = document.getElementById('weaponsGrid');
+  grid.innerHTML = WEAPONS.map(w => `
+    <div class="set-card" id="wc-${w.name.replace(/ /g,'_')}">
+      <div class="card-header" onclick="toggleWCard('${w.name.replace(/ /g,'_')}')">
+        <div class="card-icon" style="background:linear-gradient(135deg,#f5842c,#f5c842)">${getInitial(w.name)}</div>
+        <div>
+          <div class="card-name">${w.name}</div>
+          <div class="card-sub">Normal: ${fmtRange(w.normal)}</div>
+        </div>
+        <div class="card-arrow">▼</div>
+      </div>
+      <div class="card-body">
+        <div class="card-pane active" style="padding:14px 16px">
+          <div class="val-row"><span class="val-label">Normal</span><span class="val-badge">${fmtRange(w.normal)}</span></div>
+          ${w.rare ? `<div class="val-row"><span class="val-label">${w.rareLabel||'Rare'} <span class="tag rare">RARE</span></span><span class="val-badge rare">${fmtRange(w.rare)}</span></div>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleWCard(id) {
+  const card = document.getElementById('wc-'+id);
+  card.classList.toggle('expanded');
+}
+
+// ===================== TITLES PAGE =====================
+function renderTitles() {
+  const grid = document.getElementById('titlesGrid');
+  grid.innerHTML = TITLES.map(t => `
+    <div class="set-card">
+      <div class="card-header" style="cursor:default">
+        <div class="card-icon" style="background:linear-gradient(135deg,#b06af0,#7c5cfc)">${getInitial(t.name)}</div>
+        <div>
+          <div class="card-name">${t.name}</div>
+          <div class="card-sub">${fmtRange(t.value)}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===================== ENCHANTS PAGE =====================
+let currentEnchant = Object.keys(ENCHANTS)[0];
+function renderEnchantsByEnchant() {
+  const nav = document.getElementById('enchantTabNav');
+  nav.innerHTML = Object.keys(ENCHANTS).map(e => `
+    <button class="enchant-tab-btn${e===currentEnchant?' active':''}" onclick="selectEnchant('${e}')">${e}</button>
+  `).join('');
+  renderEnchantTable();
+
+  // Accessory enchants
+  const body = document.getElementById('accEnchBody');
+  body.innerHTML = ACC_ENCHANTS.map(a => `
+    <tr><td class="set-name">${a.name}</td><td><span class="val-badge">${fmtRange(a.value)}</span></td></tr>
+  `).join('');
+}
+function selectEnchant(name) {
+  currentEnchant = name;
+  document.querySelectorAll('.enchant-tab-btn').forEach(b => b.classList.toggle('active', b.textContent===name));
+  renderEnchantTable();
+}
+function renderEnchantTable() {
+  const data = ENCHANTS[currentEnchant] || [];
+  const sorted = [...data].sort((a,b) => b.v44[1]-a.v44[1]);
+  document.getElementById('enchantTableWrap').innerHTML = `
+    <table class="enchant-table">
+      <thead><tr><th>Set</th><th>4/4 Value</th><th>5/5 Value</th></tr></thead>
+      <tbody>${sorted.map(row=>`
+        <tr>
+          <td class="set-name">${row.set}</td>
+          <td><span class="val-badge">${fmtRange(row.v44)}</span></td>
+          <td><span class="val-badge v55">${fmtRange(row.v55)}</span></td>
+        </tr>
+      `).join('')}</tbody>
+    </table>`;
+}
+
+let currentEnchantSet = SETS[0].name;
+function renderEnchantsbySet() {
+  const sel = document.getElementById('enchantSetSelector');
+  // Find sets that appear in any enchant
+  const setsWithEnchants = new Set();
+  Object.values(ENCHANTS).forEach(arr => arr.forEach(e => setsWithEnchants.add(e.set)));
+  sel.innerHTML = [...setsWithEnchants].sort().map(s => `
+    <button class="set-sel-btn${s===currentEnchantSet?' active':''}" onclick="selectEnchantSet('${s}')">${s}</button>
+  `).join('');
+  renderSetEnchantDetail();
+}
+function selectEnchantSet(name) {
+  currentEnchantSet = name;
+  document.querySelectorAll('.set-sel-btn').forEach(b => b.classList.toggle('active', b.textContent===name));
+  renderSetEnchantDetail();
+}
+function renderSetEnchantDetail() {
+  const detail = document.getElementById('setEnchantDetail');
+  const rows = [];
+  Object.entries(ENCHANTS).forEach(([encName, arr]) => {
+    const found = arr.find(e => e.set === currentEnchantSet);
+    if (found) rows.push({ enc: encName, ...found });
+  });
+  if (!rows.length) {
+    detail.innerHTML = '<div class="empty">No enchant data for this set</div>';
+    return;
+  }
+  detail.innerHTML = `<div class="set-detail-grid">${rows.map(r=>`
+    <div class="enchant-row-card">
+      <div class="enc-name">${r.enc}</div>
+      <div class="enc-val-row">
+        <div style="flex:1"><span class="val-label" style="font-size:0.75rem">4/4</span><br><span class="val-badge">${fmtRange(r.v44)}</span></div>
+        <div style="flex:1"><span class="val-label" style="font-size:0.75rem">5/5</span><br><span class="val-badge v55">${fmtRange(r.v55)}</span></div>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+function switchEnchantView(view, btn) {
+  document.querySelectorAll('.enchant-toggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.enchant-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('ev-'+view).classList.add('active');
+  if (view==='bySet') renderEnchantsbySet();
+}
+
+// ===================== PETS PAGE =====================
+let petView = 'normal';
+function switchPetView(view, btn) {
+  petView = view;
+  document.querySelectorAll('.pet-toggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPets();
+}
+function renderPets() {
+  const data = petView === 'normal' ? PETS_NORMAL : PETS_RARE;
+  const tiers = ['P5','P6','P7','P8','P9','P10'];
+  const isRare = petView === 'rare';
+  document.getElementById('petsTableWrap').innerHTML = `
+    <div style="overflow-x:auto">
+    <table class="pet-table">
+      <thead><tr><th>Pet</th>${tiers.map(t=>`<th>${t}</th>`).join('')}</tr></thead>
+      <tbody>${data.map(p=>`
+        <tr>
+          <td class="pet-name">${p.name}${isRare?' <span class="tag rare">RARE</span>':''}</td>
+          ${tiers.map(t=>`<td class="tier-val${isRare?' rare':''}">${p[t]?fmtRange(p[t]):'—'}</td>`).join('')}
+        </tr>
+      `).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+// ===================== PET BOOKS =====================
+function renderPetBooks() {
+  const grid = document.getElementById('petBooksGrid');
+  grid.innerHTML = PET_BOOKS.map(b => `
+    <div class="book-card">
+      <div class="bn">📖 ${b.name}</div>
+      <div class="book-row"><span class="br-lbl">Purple</span><span class="purple-val">${fmtM(b.purple)}</span></div>
+      ${b.yellow !== null ? `<div class="book-row"><span class="br-lbl">Yellow</span><span class="yellow-val">${fmtM(b.yellow)}</span></div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ===================== MISC =====================
+function renderMisc() {
+  const content = document.getElementById('miscContent');
+  content.innerHTML = `
+    <div class="misc-section">
+      <h3>Other MVP Sets</h3>
+      <div class="cards-grid">${MISC_SETS.map(s=>renderMiscSetCard(s)).join('')}</div>
+    </div>
+
+    <div class="misc-section">
+      <h3>Items, Rings, Shields & Cosmetics</h3>
+      <div class="cards-grid">${MISC_ITEMS.map(i=>`
+        <div class="set-card">
+          <div class="card-header" style="cursor:default">
+            <div class="card-icon" style="background:linear-gradient(135deg,#e84cad,#b06af0)">${getInitial(i.name)}</div>
+            <div>
+              <div class="card-name">${i.name}</div>
+              <div class="card-sub">${fmtRange(i.value)}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}</div>
+    </div>
+
+    <div class="misc-section">
+      <h3>Gats & Wands</h3>
+      <div class="cards-grid">${GATS.map(g=>`
+        <div class="set-card">
+          <div class="card-header" style="cursor:default">
+            <div class="card-icon" style="background:linear-gradient(135deg,#3ecf78,#4f8ef7)">${getInitial(g.name)}</div>
+            <div>
+              <div class="card-name">${g.name}</div>
+              <div class="card-sub">${fmtRange(g.value)}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}</div>
+    </div>
+  `;
+}
+
+// ===================== WFL CALC =====================
+let wflLeft = [], wflRight = [];
+
+function buildWflItems() {
+  const items = [];
+  SETS.forEach(s => { items.push({name:s.name+' 4/4',val:(s.v44[0]+s.v44[1])/2}); items.push({name:s.name+' 5/5',val:(s.v55[0]+s.v55[1])/2}); });
+  WEAPONS.forEach(w => {
+    items.push({name:w.name+' Normal',val:(w.normal[0]+w.normal[1])/2});
+    if(w.rare) items.push({name:w.name+' '+(w.rareLabel||'Rare'),val:(w.rare[0]+w.rare[1])/2});
+  });
+  TITLES.forEach(t => items.push({name:t.name,val:(t.value[0]+t.value[1])/2}));
+  Object.entries(ENCHANTS).forEach(([enc,arr]) => {
+    arr.forEach(e=>{
+      items.push({name:e.set+' '+enc+' 4/4',val:(e.v44[0]+e.v44[1])/2});
+      items.push({name:e.set+' '+enc+' 5/5',val:(e.v55[0]+e.v55[1])/2});
+    });
+  });
+  PETS_NORMAL.forEach(p=>{
+    ['P5','P6','P7','P8','P9','P10'].forEach(t=>{ if(p[t]) items.push({name:p.name+' '+t,val:(p[t][0]+p[t][1])/2}); });
+  });
+  PETS_RARE.forEach(p=>{
+    ['P5','P6','P7','P8','P9','P10'].forEach(t=>{ if(p[t]) items.push({name:p.name+' Rare '+t,val:(p[t][0]+p[t][1])/2}); });
+  });
+  MISC_SETS.forEach(s=>{ items.push({name:s.name+' 4/4',val:(s.v44[0]+s.v44[1])/2}); items.push({name:s.name+' 5/5',val:(s.v55[0]+s.v55[1])/2}); });
+  MISC_ITEMS.forEach(i=>items.push({name:i.name,val:(i.value[0]+i.value[1])/2}));
+  GATS.forEach(g=>items.push({name:g.name,val:(g.value[0]+g.value[1])/2}));
+  return items.sort((a,b)=>b.val-a.val);
+}
+
+function populateWflSelects() {
+  const items = buildWflItems();
+  const opts = '<option value="">— Select item —</option>'+items.map(i=>`<option value="${i.val}">${i.name}</option>`).join('');
+  document.getElementById('wflSelectLeft').innerHTML = opts;
+  document.getElementById('wflSelectRight').innerHTML = opts;
+}
+
+function addWflItem(side) {
+  const sel = document.getElementById('wflSelect'+side.charAt(0).toUpperCase()+side.slice(1));
+  if (!sel.value) return;
+  const name = sel.options[sel.selectedIndex].text;
+  const val = parseFloat(sel.value);
+  const arr = side==='left' ? wflLeft : wflRight;
+  arr.push({name,val});
+  renderWflSide(side);
+  updateWflResult();
+}
+function removeWflItem(side, idx) {
+  const arr = side==='left' ? wflLeft : wflRight;
+  arr.splice(idx,1);
+  renderWflSide(side);
+  updateWflResult();
+}
+function renderWflSide(side) {
+  const arr = side==='left' ? wflLeft : wflRight;
+  const container = document.getElementById('wflItems'+side.charAt(0).toUpperCase()+side.slice(1));
+  container.innerHTML = arr.map((it,i)=>`
+    <div class="wfl-item">
+      <span class="wi-name">${it.name}</span>
+      <span class="wi-val">${fmtM(it.val)}</span>
+      <button class="wi-del" onclick="removeWflItem('${side}',${i})">✕</button>
+    </div>
+  `).join('');
+  const total = arr.reduce((s,i)=>s+i.val,0);
+  document.getElementById('wflTotal'+side.charAt(0).toUpperCase()+side.slice(1)).textContent = fmtM(total);
+}
+function updateWflResult() {
+  const lTotal = wflLeft.reduce((s,i)=>s+i.val,0);
+  const rTotal = wflRight.reduce((s,i)=>s+i.val,0);
+  const res = document.getElementById('wflResult');
+  if (!wflLeft.length && !wflRight.length) { res.style.display='none'; return; }
+  res.style.display='block';
+  const diff = rTotal - lTotal;
+  const pct = lTotal>0 ? Math.abs(diff)/lTotal*100 : 0;
+  let verdict, cls, desc;
+  if (pct < 10) { verdict='FAIR'; cls='verdict-Fair'; desc='Trade is roughly even (within 10%)'; }
+  else if (diff > 0) { verdict='WIN 🏆'; cls='verdict-W'; desc=`You receive ${fmtM(Math.abs(diff))} (${pct.toFixed(1)}%) more`; }
+  else { verdict='LOSS ❌'; cls='verdict-L'; desc=`You give ${fmtM(Math.abs(diff))} (${pct.toFixed(1)}%) more`; }
+  document.getElementById('wflVerdict').className='wfl-verdict '+cls;
+  document.getElementById('wflVerdict').textContent = verdict;
+  document.getElementById('wflDiff').textContent = desc;
+}
+function clearWfl() {
+  wflLeft=[]; wflRight=[];
+  renderWflSide('left'); renderWflSide('right');
+  document.getElementById('wflResult').style.display='none';
+}
+
+// ===================== SEARCH =====================
+function buildSearchIndex() {
+  const idx = [];
+  SETS.forEach(s=>{
+    idx.push({name:s.name,cat:'MVP Set',vals:`4/4: ${fmtRange(s.v44)} | 5/5: ${fmtRange(s.v55)}`});
+  });
+  WEAPONS.forEach(w=>{
+    idx.push({name:w.name,cat:'Weapon',vals:`Normal: ${fmtRange(w.normal)}${w.rare?' | '+(w.rareLabel||'Rare')+': '+fmtRange(w.rare):''}`});
+  });
+  TITLES.forEach(t=>idx.push({name:t.name,cat:'Title',vals:fmtRange(t.value)}));
+  Object.entries(ENCHANTS).forEach(([enc,arr])=>{
+    arr.forEach(e=>idx.push({name:`${e.set} ${enc}`,cat:'Enchant',vals:`4/4: ${fmtRange(e.v44)} | 5/5: ${fmtRange(e.v55)}`}));
+  });
+  ACC_ENCHANTS.forEach(a=>idx.push({name:a.name+' DEF1',cat:'Accessory Enchant',vals:fmtRange(a.value)}));
+  PETS_NORMAL.forEach(p=>['P5','P6','P7','P8','P9','P10'].forEach(t=>{ if(p[t]) idx.push({name:`${p.name} ${t}`,cat:'Pet',vals:fmtRange(p[t])}); }));
+  PETS_RARE.forEach(p=>['P5','P6','P7','P8','P9','P10'].forEach(t=>{ if(p[t]) idx.push({name:`${p.name} Rare ${t}`,cat:'Rare Pet',vals:fmtRange(p[t])}); }));
+  PET_BOOKS.forEach(b=>idx.push({name:b.name+' Book',cat:'Pet Book',vals:`Purple: ${fmtM(b.purple)}${b.yellow?' | Yellow: '+fmtM(b.yellow):''}`}));
+  MISC_SETS.forEach(s=>idx.push({name:s.name,cat:'Misc Set',vals:`4/4: ${fmtRange(s.v44)} | 5/5: ${fmtRange(s.v55)}`}));
+  MISC_ITEMS.forEach(i=>idx.push({name:i.name,cat:'Item',vals:fmtRange(i.value)}));
+  GATS.forEach(g=>idx.push({name:g.name,cat:'Gat/Wand',vals:fmtRange(g.value)}));
+  return idx;
+}
+let searchIdx;
+function doSearch(q) {
+  if (!searchIdx) searchIdx = buildSearchIndex();
+  const res = document.getElementById('searchResults');
+  if (!q.trim()) { res.innerHTML='<div class="empty">Start typing to search all items…</div>'; return; }
+  const hits = searchIdx.filter(i=>i.name.toLowerCase().includes(q.toLowerCase()));
+  if (!hits.length) { res.innerHTML='<div class="empty">No results found</div>'; return; }
+  res.innerHTML = hits.slice(0,50).map(h=>`
+    <div class="sr-item">
+      <div class="sr-cat">${h.cat}</div>
+      <div class="sr-name">${h.name}</div>
+      <div class="sr-vals">${h.vals.replace(/([0-9]+\.?[0-9]*[MB])/g,'<span>$1</span>')}</div>
+    </div>
+  `).join('');
+}
+function quickSearchFn(q) {
+  if (q.length > 1) {
+    showPage('search');
+    document.getElementById('searchInput').value = q;
+    doSearch(q);
+  }
+}
+
+// ===================== NAVIGATION =====================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const pageMap = {sets:0,weapons:1,titles:2,enchants:3,pets:4,petbooks:5,misc:6,wfl:7,search:8};
+  if(pageMap[name]!==undefined) tabs[pageMap[name]].classList.add('active');
+}
+
+// ===================== MISC SET CARDS =====================
+function renderMiscSetCard(s) {
+  const safeId = s.name.replace(/[^a-zA-Z0-9]/g,'_');
+  const info = SET_INFO[s.name];
+  let totalHP=0, totalDEF=0, totalDMG=0;
+  if (info) { info.pieces.forEach(p=>{ totalHP+=p.hp||0; totalDEF+=p.def||0; totalDMG+=(p.dmg||0); }); }
+  const infoPane = info ? `
+    <div class="card-pane" id="minf-${safeId}">
+      <div class="info-section">
+        <h4>Armor Pieces</h4>
+        <div class="stat-grid">
+          ${info.pieces.map(p=>`<div class="stat-chip"><span class="sk">${p.n}</span><span class="sv">HP+${p.hp} DEF+${p.def}${p.dmg?` DMG+${p.dmg}`:''}</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="total-stats">
+        <div class="total-chip"><span class="tk">Total HP</span><span class="tv">+${totalHP}</span></div>
+        <div class="total-chip"><span class="tk">Total DEF</span><span class="tv">+${totalDEF}</span></div>
+        ${totalDMG?`<div class="total-chip"><span class="tk">Total DMG</span><span class="tv">+${totalDMG}</span></div>`:''}
+      </div>
+      <div class="info-section"><h4>Title</h4>
+        <div class="ability-box"><strong>${info.title}</strong>${info.titleStats&&info.titleStats!=='No title listed'&&info.titleStats!=='No title'&&info.titleStats!=='No sub-title listed'? ` — ${info.titleStats}`:' — '+info.titleStats}</div>
+      </div>
+      <div class="info-section"><h4>Set Abilities</h4>
+        <div class="ability-box"><strong>5/5 (Non-Enhanced):</strong> ${info.a5}</div>
+        <div class="ability-box"><strong>2/4 Enhanced:</strong> ${info.a24}</div>
+        <div class="ability-box"><strong>4/4 Enhanced:</strong> ${info.a44}</div>
+      </div>
+      ${info.weapon && info.weapon !== 'No dedicated weapon listed' ? `<div class="info-section"><h4>Weapons</h4><div class="ability-box"><strong>Normal:</strong> ${info.weapon}</div><div class="ability-box"><strong>Rare:</strong> ${info.weaponR||'—'}</div></div>` : ''}
+    </div>` : `<div class="card-pane" id="minf-${safeId}"><div class="empty">Info coming soon</div></div>`;
+  return `<div class="set-card" id="msc-${safeId}">
+    <div class="card-header" onclick="toggleMiscCard('${safeId}')">
+      <div class="card-icon" style="background:linear-gradient(135deg,#54c8e8,#4f8ef7)">${getInitial(s.name)}</div>
+      <div>
+        <div class="card-name">${s.name}</div>
+        <div class="card-sub">4/4: ${fmtRange(s.v44)} · 5/5: ${fmtRange(s.v55)}</div>
+      </div>
+      ${info ? '<div class="card-arrow">▼</div>' : ''}
+    </div>
+    ${info ? `<div class="card-body">
+      <div class="card-tabs">
+        <div class="card-tab active" onclick="switchMiscTab(event,'mval-${safeId}','${safeId}')">💰 Value</div>
+        <div class="card-tab" onclick="switchMiscTab(event,'minf-${safeId}','${safeId}')">📋 Info</div>
+      </div>
+      <div class="card-pane active" id="mval-${safeId}">
+        <div class="val-row"><span class="val-label">4/4 Value</span><span class="val-badge">${fmtRange(s.v44)}</span></div>
+        <div class="val-row"><span class="val-label">5/5 Value</span><span class="val-badge v55">${fmtRange(s.v55)}</span></div>
+      </div>
+      ${infoPane}
+    </div>` : ''}
+  </div>`;
+}
+function toggleMiscCard(id) {
+  const card = document.getElementById('msc-'+id);
+  if(card) card.classList.toggle('expanded');
+}
+function switchMiscTab(e, paneId, setId) {
+  const card = document.getElementById('msc-'+setId);
+  if(!card) return;
+  card.querySelectorAll('.card-tab').forEach(t=>t.classList.remove('active'));
+  card.querySelectorAll('.card-pane').forEach(p=>p.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  const pane = document.getElementById(paneId);
+  if(pane) pane.classList.add('active');
+}
+
+// ===================== INIT =====================
+window.onload = function() {
+  renderSets();
+  renderWeapons();
+  renderTitles();
+  renderEnchantsByEnchant();
+  renderPets();
+  renderPetBooks();
+  renderMisc();
+  populateWflSelects();
+};
+</script>
+</body>
+</html>
